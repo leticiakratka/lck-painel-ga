@@ -7,20 +7,21 @@
 :root{--bg:#0f1115;--card:#1a1d24;--line:#272b34;--txt:#e8eaed;--mut:#9aa0aa;--ac:#c8a96a;--up:#4ade80;--dn:#f87171}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,sans-serif;padding:28px;max-width:1200px;margin:0 auto}
+.head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
 h1{font-size:22px;font-weight:600;letter-spacing:.3px}
 .sub{color:var(--mut);font-size:13px;margin-top:4px}
+.period{display:flex;align-items:center;gap:8px}
+.period label{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+select{background:var(--card);color:var(--txt);border:1px solid var(--ac);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer}
 .grid{display:grid;gap:14px;margin-top:22px}
 .kpis{grid-template-columns:repeat(4,1fr)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
 .kpi .lab{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
 .kpi .val{font-size:28px;font-weight:700;margin-top:8px}
-.kpi.hot{border-color:var(--ac)}
-.kpi.hot .val{color:var(--ac)}
+.kpi.hot{border-color:var(--ac)}.kpi.hot .val{color:var(--ac)}
 .delta{font-size:12px;margin-top:6px;font-weight:600}
-.delta.up{color:var(--up)} .delta.dn{color:var(--dn)} .delta.na{color:var(--mut)}
-.two{grid-template-columns:2fr 1fr}
-.full{grid-template-columns:1fr}
-.row2{grid-template-columns:1fr 1fr}
+.delta.up{color:var(--up)}.delta.dn{color:var(--dn)}.delta.na{color:var(--mut)}
+.two{grid-template-columns:2fr 1fr}.full{grid-template-columns:1fr}.row2{grid-template-columns:1fr 1fr}
 h2{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--txt)}
 table{width:100%;border-collapse:collapse;font-size:13px}
 td{padding:8px 4px;border-bottom:1px solid var(--line);color:var(--mut)}
@@ -30,44 +31,45 @@ td.k{color:var(--txt);max-width:340px;overflow:hidden;text-overflow:ellipsis;whi
 canvas{max-height:300px}
 .tabs{display:flex;gap:6px;margin-top:22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .tab{background:none;border:none;color:var(--mut);font-size:14px;font-weight:600;padding:12px 18px;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
-.tab:hover{color:var(--txt)}
-.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
-.tabpane{display:none}
-.tabpane.active{display:block}
+.tab:hover{color:var(--txt)}.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+.tabpane{display:none}.tabpane.active{display:block}
 .mrow{padding:13px 0;border-bottom:1px solid var(--line)}
 .mrow .top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:7px}
-.mrow .nm{color:var(--txt);font-weight:600}
-.mrow .vl{color:var(--mut);white-space:nowrap}
-.mrow .vl b{color:var(--ac)}
+.mrow .nm{color:var(--txt);font-weight:600}.mrow .vl{color:var(--mut);white-space:nowrap}.mrow .vl b{color:var(--ac)}
 .barwrap{background:var(--line);border-radius:6px;height:9px;overflow:hidden}
 .bar{height:100%;background:var(--ac);border-radius:6px}
 .bigstat{display:flex;gap:44px;flex-wrap:wrap;align-items:baseline;margin-top:6px}
-.bigstat .n{font-size:40px;font-weight:700}
-.bigstat .n.ac{color:var(--ac)}
+.bigstat .n{font-size:40px;font-weight:700}.bigstat .n.ac{color:var(--ac)}
 .bigstat .l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
 .funnel{margin-top:8px}
 .fstep{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:8px}
-.fstep .fn{font-weight:600}
-.fstep .fv{font-weight:700;font-size:18px}
-.fstep.gold{border-color:var(--ac)}
-.fstep.gold .fv{color:var(--ac)}
+.fstep .fn{font-weight:600}.fstep .fv{font-weight:700;font-size:18px}
+.fstep.gold{border-color:var(--ac)}.fstep.gold .fv{color:var(--ac)}
 .farrow{text-align:center;color:var(--mut);font-size:12px;margin:2px 0 8px}
 @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.two,.row2{grid-template-columns:1fr}}
 </style></head><body>
-<h1>Painel LCK &middot; Google Analytics</h1>
-<div class="sub">Ultimos 28 dias &middot; vs periodo anterior &middot; atualizado em 28/06/2026 14:42</div>
+<div class="head">
+  <div>
+    <h1>Painel LCK &middot; Google Analytics</h1>
+    <div class="sub" id="subhdr"></div>
+  </div>
+  <div class="period">
+    <label for="period">Periodo</label>
+    <select id="period"></select>
+  </div>
+</div>
 
 <div class="tabs">
   <button class="tab active" data-pane="p-geral">Visao geral</button>
   <button class="tab" data-pane="p-bio">&#128279; Link da bio</button>
+  <button class="tab" data-pane="p-prod">&#128722; Produtos</button>
   <button class="tab" data-pane="p-conv">&#127919; Conversao</button>
 </div>
 
-<!-- ===== VISAO GERAL ===== -->
 <div class="tabpane active" id="p-geral">
   <div class="grid kpis" id="kpis"></div>
   <div class="grid two">
-    <div class="card"><h2>Trafego diario</h2><canvas id="lc"></canvas></div>
+    <div class="card"><h2>Trafego no periodo</h2><canvas id="lc"></canvas></div>
     <div class="card"><h2>Canais</h2><canvas id="dc"></canvas></div>
   </div>
   <div class="grid row2">
@@ -80,7 +82,6 @@ canvas{max-height:300px}
   </div>
 </div>
 
-<!-- ===== LINK DA BIO ===== -->
 <div class="tabpane" id="p-bio">
   <div class="grid full">
     <div class="card" style="border-color:var(--ac);background:linear-gradient(180deg,rgba(200,169,106,.07),var(--card))">
@@ -92,10 +93,14 @@ canvas{max-height:300px}
     <div class="card"><h2>Cliques por link (% do total)</h2><div id="bio-bars"></div></div>
     <div class="card"><h2>Distribuicao</h2><canvas id="bio-chart"></canvas></div>
   </div>
-  <div class="sub" style="line-height:1.5;margin-top:14px">Cliques <b>inferidos pelo destino</b> (sessoes que sairam da bio pra cada pagina). A medicao exata por botao (evento bio_click) ja foi instalada e vai aparecer aqui assim que acumular dados.</div>
+  <div class="sub" style="line-height:1.5;margin-top:14px">Cliques <b>inferidos pelo destino</b> (sessoes que sairam da bio pra cada pagina). A medicao exata por botao (evento bio_click) ja foi instalada e aparece aqui quando acumular dados.</div>
 </div>
 
-<!-- ===== CONVERSAO ===== -->
+<div class="tabpane" id="p-prod">
+  <div id="prod-cards"></div>
+  <div class="sub" style="line-height:1.5;margin-top:14px">Visitantes e sessoes das paginas de cada produto. A <b>compra</b> em si acontece no checkout externo (Voomp/Eduzz), fora deste GA, entao aqui vemos o <b>interesse</b> (visitas e begin_checkout onde existe), nao a venda final.</div>
+</div>
+
 <div class="tabpane" id="p-conv">
   <div class="grid full">
     <div class="card" style="border-color:var(--ac);background:linear-gradient(180deg,rgba(200,169,106,.07),var(--card))">
@@ -106,13 +111,20 @@ canvas{max-height:300px}
   <div class="grid full">
     <div class="card"><h2>Funil da pagina</h2><div class="funnel" id="conv-funnel"></div></div>
   </div>
-  <div class="sub" style="line-height:1.5;margin-top:14px">Taxa de conversao = formularios enviados (generate_lead) sobre visitantes unicos da pagina /consultoria/. A quebra por <b>faixa de renda</b> (evento lead_consultoria) entra aqui assim que comecar a registrar.</div>
+  <div class="sub" style="line-height:1.5;margin-top:14px">Taxa de conversao = formularios enviados (generate_lead) sobre visitantes unicos de /consultoria/. A quebra por <b>faixa de renda</b> (lead_consultoria) entra aqui quando comecar a registrar.</div>
 </div>
 
-<div class="foot">Gerado a partir do GA4 (propriedade 396197354) &middot; atualiza sozinho 1x/dia.</div>
+<div class="foot">GA4 propriedade 396197354 &middot; atualiza sozinho 1x/dia &middot; gerado em 28/06/2026 14:54</div>
 <script>
-const D = {"dias": 28, "agora": "28/06/2026 14:42", "kpis": [{"label": "Usuarios ativos", "v": 9075, "d": 29.9}, {"label": "Novos usuarios", "v": 7758, "d": 32.0}, {"label": "Sessoes", "v": 11197, "d": 22.9}, {"label": "Pageviews", "v": 10846, "d": 27.1}, {"label": "Taxa engajamento", "v": 7.8, "suf": "%", "d": 0.9}, {"label": "Tempo medio sessao", "v": 32, "suf": "s", "d": 10.7}, {"label": "Begin checkout", "v": 836, "d": 37.5, "hot": true}, {"label": "Leads gerados", "v": 73, "d": 17.7, "hot": true}], "daily": {"labels": ["31/05", "01/06", "02/06", "03/06", "04/06", "05/06", "06/06", "07/06", "08/06", "09/06", "10/06", "11/06", "12/06", "13/06", "14/06", "15/06", "16/06", "17/06", "18/06", "19/06", "20/06", "21/06", "22/06", "23/06", "24/06", "25/06", "26/06", "27/06", "28/06"], "users": [118, 125, 94, 108, 206, 483, 206, 230, 184, 180, 482, 331, 199, 335, 846, 828, 798, 647, 381, 126, 66, 42, 694, 228, 257, 277, 211, 168, 504], "sess": [149, 152, 112, 137, 235, 538, 258, 265, 237, 242, 547, 422, 247, 386, 968, 931, 956, 802, 447, 178, 77, 67, 764, 275, 318, 349, 291, 212, 525]}, "canais": [[["Organic Social"], 7052], [["Unassigned"], 3104], [["Direct"], 463], [["Referral"], 396], [["Organic Search"], 41], [["AI Assistant"], 5], [["Paid Search"], 3], [["Organic Video"], 1]], "paginas": [[["/"], 8385], [["/consultoria/"], 1232], [["/14331/offer/KYti4b/"], 313], [["/15215/offer/GxmSsw/"], 283], [["/Q9NDB62101"], 236], [["/14331/offer/LDaW29/"], 188], [["/index.html"], 27], [["/caixa-livre-2/"], 24], [["/pv/"], 21], [["/jantarfinanceiro/"], 20]], "fontes": [[["(not set)", "(not set)"], 1428], [["bio_ig", "social"], 700], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 676], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 464], [["(direct)", "(none)"], 463], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+]"], 311], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 306], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+]"], 266], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 203], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+][ADS MAR26]"], 191]], "devices": [[["mobile"], 9604], [["desktop"], 1631], [["tablet"], 19]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 1141, "leads": 72, "rate": 6.3}};
+const ALL = {"order": ["30 dias", "60 dias", "90 dias", "365 dias", "Todo o periodo"], "periods": {"30 dias": {"kpis": [{"label": "Usuarios ativos", "v": 9234, "d": 11.0}, {"label": "Novos usuarios", "v": 7910, "d": 13.2}, {"label": "Sessoes", "v": 11457, "d": 7.8}, {"label": "Pageviews", "v": 11061, "d": 9.0}, {"label": "Taxa engajamento", "v": 7.7, "suf": "%", "d": -3.5}, {"label": "Tempo medio sessao", "v": 32, "suf": "s", "d": 8.8}, {"label": "Begin checkout", "v": 848, "d": 16.6, "hot": true}, {"label": "Leads gerados", "v": 73, "d": 0.0, "hot": true}], "daily": {"labels": ["29/05", "30/05", "31/05", "01/06", "02/06", "03/06", "04/06", "05/06", "06/06", "07/06", "08/06", "09/06", "10/06", "11/06", "12/06", "13/06", "14/06", "15/06", "16/06", "17/06", "18/06", "19/06", "20/06", "21/06", "22/06", "23/06", "24/06", "25/06", "26/06", "27/06", "28/06"], "users": [86, 90, 118, 125, 94, 108, 206, 483, 206, 230, 184, 180, 482, 331, 199, 335, 846, 828, 798, 647, 381, 126, 66, 42, 694, 228, 257, 277, 211, 168, 504], "sess": [107, 118, 149, 152, 112, 137, 235, 538, 258, 265, 237, 242, 547, 422, 247, 386, 968, 931, 956, 802, 447, 178, 77, 67, 764, 275, 318, 349, 291, 212, 525]}, "canais": [[["Organic Social"], 7210], [["Unassigned"], 3169], [["Direct"], 470], [["Referral"], 399], [["Organic Search"], 41], [["AI Assistant"], 5], [["Paid Search"], 3], [["Organic Video"], 1]], "paginas": [[["/"], 8558], [["/consultoria/"], 1261], [["/14331/offer/KYti4b/"], 322], [["/15215/offer/GxmSsw/"], 283], [["/Q9NDB62101"], 239], [["/14331/offer/LDaW29/"], 188], [["/index.html"], 27], [["/caixa-livre-2/"], 24], [["/pv/"], 21], [["/jantarfinanceiro/"], 20]], "fontes": [[["(not set)", "(not set)"], 1449], [["bio_ig", "social"], 725], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 676], [["(direct)", "(none)"], 470], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 464], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+]"], 319], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 306], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+]"], 270], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 218], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+][ADS MAR26]"], 191]], "devices": [[["mobile"], 9813], [["desktop"], 1643], [["tablet"], 20]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 1163, "leads": 72, "rate": 6.2}, "produtos": [{"name": "Jantar Financeiro", "users": 1482, "sessions": 1905, "checkout": 0, "pages": [[["jantarfinanceiro.leticiakratka.com.br"], 1482]]}, {"name": "Caixa Livre", "users": 5550, "sessions": 6600, "checkout": 0, "pages": [[["planovoomp.leticiakratka.com.br"], 3109], [["planofinanceiro.leticiakratka.com.br"], 1981], [["cxl.leticiakratka.com.br"], 363], [["cxlvoomp.leticiakratka.com.br"], 69], [["cxl01.leticiakratka.com.br"], 28]]}]}, "60 dias": {"kpis": [{"label": "Usuarios ativos", "v": 17454, "d": -0.7}, {"label": "Novos usuarios", "v": 14900, "d": -2.1}, {"label": "Sessoes", "v": 22189, "d": 1.0}, {"label": "Pageviews", "v": 21210, "d": 0.5}, {"label": "Taxa engajamento", "v": 7.8, "suf": "%", "d": 3.5}, {"label": "Tempo medio sessao", "v": 30, "suf": "s", "d": 9.3}, {"label": "Begin checkout", "v": 1575, "d": 47.5, "hot": true}, {"label": "Leads gerados", "v": 146, "d": -19.3, "hot": true}], "daily": {"labels": ["29/04", "30/04", "01/05", "02/05", "03/05", "04/05", "05/05", "06/05", "07/05", "08/05", "09/05", "10/05", "11/05", "12/05", "13/05", "14/05", "15/05", "16/05", "17/05", "18/05", "19/05", "20/05", "21/05", "22/05", "23/05", "24/05", "25/05", "26/05", "27/05", "28/05", "29/05", "30/05", "31/05", "01/06", "02/06", "03/06", "04/06", "05/06", "06/06", "07/06", "08/06", "09/06", "10/06", "11/06", "12/06", "13/06", "14/06", "15/06", "16/06", "17/06", "18/06", "19/06", "20/06", "21/06", "22/06", "23/06", "24/06", "25/06", "26/06", "27/06", "28/06"], "users": [248, 361, 479, 414, 317, 282, 298, 577, 262, 730, 388, 455, 395, 392, 352, 321, 192, 217, 214, 201, 228, 263, 192, 198, 128, 74, 70, 208, 79, 131, 86, 90, 118, 125, 94, 108, 206, 483, 206, 230, 184, 180, 482, 331, 199, 335, 846, 828, 798, 647, 381, 126, 66, 42, 694, 228, 257, 277, 211, 168, 504], "sess": [311, 453, 579, 499, 371, 373, 438, 649, 328, 834, 479, 539, 464, 470, 442, 402, 266, 257, 266, 259, 273, 299, 234, 253, 167, 94, 84, 222, 107, 172, 107, 118, 149, 152, 112, 137, 235, 538, 258, 265, 237, 242, 547, 422, 247, 386, 968, 931, 956, 802, 447, 178, 77, 67, 764, 275, 318, 349, 291, 212, 525]}, "canais": [[["Organic Social"], 14489], [["Unassigned"], 6450], [["Direct"], 647], [["Referral"], 554], [["Organic Search"], 79], [["AI Assistant"], 5], [["Organic Video"], 3], [["Paid Search"], 3], [["Paid Social"], 2], [["Paid Other"], 1]], "paginas": [[["/"], 16713], [["/consultoria/"], 2360], [["/Q9NDB62101"], 883], [["/14331/offer/KYti4b/"], 455], [["/15215/offer/GxmSsw/"], 283], [["/14331/offer/LDaW29/"], 188], [["/caixa-livre-2/"], 51], [["/pv/"], 33], [["/index.html"], 27], [["/jantarfinanceiro/"], 20]], "fontes": [[["(not set)", "(not set)"], 2900], [["bio_ig", "social"], 1406], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 1143], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+]"], 1073], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+]"], 935], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 676], [["(direct)", "(none)"], 647], [["fb_Facebook_Right_Column", "[AUTO][Compradores][Advantage][IOS+14+]"], 599], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 464], [["ig_Instagram_Stories", "[AUTO][Lista compradores][Advantage]"], 413]], "devices": [[["mobile"], 19543], [["desktop"], 2596], [["tablet"], 48]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 2156, "leads": 142, "rate": 6.6}, "produtos": [{"name": "Jantar Financeiro", "users": 1482, "sessions": 1905, "checkout": 0, "pages": [[["jantarfinanceiro.leticiakratka.com.br"], 1482]]}, {"name": "Caixa Livre", "users": 11944, "sessions": 14743, "checkout": 34, "pages": [[["planofinanceiro.leticiakratka.com.br"], 6903], [["planovoomp.leticiakratka.com.br"], 4019], [["cxl.leticiakratka.com.br"], 484], [["cxl01.leticiakratka.com.br"], 430], [["cxlvoomp.leticiakratka.com.br"], 108]]}]}, "90 dias": {"kpis": [{"label": "Usuarios ativos", "v": 25473, "d": -4.0}, {"label": "Novos usuarios", "v": 21929, "d": -2.1}, {"label": "Sessoes", "v": 32286, "d": 3.9}, {"label": "Pageviews", "v": 31462, "d": 4.8}, {"label": "Taxa engajamento", "v": 8.2, "suf": "%", "d": 18.6}, {"label": "Tempo medio sessao", "v": 31, "suf": "s", "d": 11.4}, {"label": "Begin checkout", "v": 2181, "d": 25.5, "hot": true}, {"label": "Leads gerados", "v": 246, "d": -13.4, "hot": true}], "daily": {"labels": ["S14/26", "S15/26", "S16/26", "S17/26", "S18/26", "S19/26", "S20/26", "S21/26", "S22/26", "S23/26", "S24/26", "S25/26", "S26/26", "S27/26"], "users": [946, 1207, 2891, 2009, 2602, 2802, 2261, 1396, 732, 1319, 1908, 3638, 1839, 504], "sess": [1125, 1565, 3497, 2664, 3213, 3528, 2815, 1753, 904, 1583, 2348, 4379, 2279, 525]}, "canais": [[["Organic Social"], 21101], [["Unassigned"], 9253], [["Direct"], 956], [["Referral"], 721], [["Organic Search"], 125], [["AI Assistant"], 5], [["Organic Video"], 4], [["Paid Search"], 3], [["Paid Social"], 3], [["Paid Other"], 1]], "paginas": [[["/"], 24866], [["/consultoria/"], 3677], [["/Q9NDB62101"], 1442], [["/14331/offer/KYti4b/"], 455], [["/15215/offer/GxmSsw/"], 283], [["/14331/offer/LDaW29/"], 188], [["/caixa-livre-2/"], 86], [["/pv/"], 59], [["/travessia-3/"], 45], [["/2017014"], 29]], "fontes": [[["(not set)", "(not set)"], 3984], [["bio_ig", "social"], 2361], [["ig_Instagram_Stories", "[AUTO][Lista compradores][Advantage]"], 1634], [["fb_Facebook_Right_Column", "[AUTO][Lista+compradores][Advantage]"], 1442], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 1143], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+]"], 1073], [["(direct)", "(none)"], 956], [["ig_Instagram_Feed", "[AUTO][Lista compradores][Advantage]"], 947], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+]"], 935], [["ig_Instagram_Reels", "[AUTO][Compradores][Advantage][IOS 14+][ADS 2025]"], 675]], "devices": [[["mobile"], 28151], [["desktop"], 4208], [["tablet"], 72]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 3300, "leads": 236, "rate": 7.2}, "produtos": [{"name": "Jantar Financeiro", "users": 1482, "sessions": 1905, "checkout": 0, "pages": [[["jantarfinanceiro.leticiakratka.com.br"], 1482]]}, {"name": "Caixa Livre", "users": 17174, "sessions": 21588, "checkout": 51, "pages": [[["planofinanceiro.leticiakratka.com.br"], 8790], [["planovoomp.leticiakratka.com.br"], 4100], [["cxl.leticiakratka.com.br"], 3632], [["cxl01.leticiakratka.com.br"], 532], [["cxlvoomp.leticiakratka.com.br"], 120]]}]}, "365 dias": {"kpis": [{"label": "Usuarios ativos", "v": 83906, "d": 2042.1}, {"label": "Novos usuarios", "v": 73202, "d": 1721.9}, {"label": "Sessoes", "v": 102587, "d": 2148.2}, {"label": "Pageviews", "v": 100863, "d": 1831.9}, {"label": "Taxa engajamento", "v": 8.8, "suf": "%", "d": -35.4}, {"label": "Tempo medio sessao", "v": 31, "suf": "s", "d": -11.9}, {"label": "Begin checkout", "v": 6090, "d": null, "hot": true}, {"label": "Leads gerados", "v": 1694, "d": null, "hot": true}], "daily": {"labels": ["06/25", "07/25", "08/25", "09/25", "10/25", "11/25", "12/25", "01/26", "02/26", "03/26", "04/26", "05/26", "06/26"], "users": [54, 1114, 633, 747, 9545, 11417, 9850, 5567, 11331, 9434, 8536, 7988, 8978], "sess": [60, 1204, 706, 851, 10625, 13219, 11536, 6791, 13066, 11158, 11190, 10301, 11002]}, "canais": [[["Organic Social"], 69296], [["Unassigned"], 29627], [["Direct"], 2191], [["Referral"], 1429], [["Organic Search"], 407], [["Organic Video"], 15], [["AI Assistant"], 5], [["Paid Search"], 5], [["Paid Social"], 3], [["Paid Other"], 1]], "paginas": [[["/"], 72318], [["/consultoria/"], 9342], [["/Q9NDB62101"], 8734], [["/aula-mestra-gratuita/"], 4588], [["/caixa-livre-2/"], 1568], [["/aula-transmissao/"], 1408], [["/metodotravessia/"], 522], [["/14331/offer/KYti4b/"], 455], [["/travessia-2-0/"], 297], [["/15215/offer/GxmSsw/"], 283]], "fontes": [[["(not set)", "(not set)"], 12543], [["bio_ig", "social"], 6301], [["fb_Facebook_Right_Column", "[AUTO][Lista+compradores][Advantage]"], 3279], [["ig_Instagram_Stories", "[AUTO][Lista compradores][Advantage]"], 3099], [["ig_Instagram_Feed", "[AUTO][Lista compradores][Advantage]"], 2211], [["(direct)", "(none)"], 2191], [["ig_Instagram_Stories", "[AUTO][Aberto][Advantage][VDS Planilhas]"], 1694], [["ig_Instagram_Reels", "[AUTO][Lista compradores][Advantage]"], 1302], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 1143], [["ig_Instagram_Feed", "[AUTO][Compradores][Advantage][IOS 14+]"], 1073]], "devices": [[["mobile"], 92048], [["desktop"], 10259], [["tablet"], 230]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 8150, "leads": 597, "rate": 7.3}, "produtos": [{"name": "Jantar Financeiro", "users": 1482, "sessions": 1905, "checkout": 0, "pages": [[["jantarfinanceiro.leticiakratka.com.br"], 1482]]}, {"name": "Caixa Livre", "users": 17174, "sessions": 21588, "checkout": 51, "pages": [[["planofinanceiro.leticiakratka.com.br"], 8790], [["planovoomp.leticiakratka.com.br"], 4100], [["cxl.leticiakratka.com.br"], 3632], [["cxl01.leticiakratka.com.br"], 532], [["cxlvoomp.leticiakratka.com.br"], 120]]}]}, "Todo o periodo": {"kpis": [{"label": "Usuarios ativos", "v": 90351, "d": null}, {"label": "Novos usuarios", "v": 80050, "d": null}, {"label": "Sessoes", "v": 111054, "d": null}, {"label": "Pageviews", "v": 110532, "d": null}, {"label": "Taxa engajamento", "v": 9.3, "suf": "%", "d": null}, {"label": "Tempo medio sessao", "v": 32, "suf": "s", "d": null}, {"label": "Begin checkout", "v": 6090, "d": null, "hot": true}, {"label": "Leads gerados", "v": 1694, "d": null, "hot": true}], "daily": {"labels": ["07/23", "08/23", "09/23", "10/23", "11/23", "12/23", "01/24", "02/24", "03/24", "04/24", "05/24", "06/24", "07/24", "08/24", "09/24", "10/24", "11/24", "12/24", "01/25", "02/25", "03/25", "04/25", "05/25", "06/25", "07/25", "08/25", "09/25", "10/25", "11/25", "12/25", "01/26", "02/26", "03/26", "04/26", "05/26", "06/26"], "users": [229, 184, 69, 76, 75, 510, 343, 191, 283, 252, 219, 228, 225, 145, 128, 122, 107, 70, 116, 118, 204, 416, 921, 1410, 1114, 633, 747, 9545, 11417, 9850, 5567, 11331, 9434, 8536, 7988, 8978], "sess": [265, 219, 79, 88, 113, 734, 442, 252, 377, 353, 280, 279, 282, 202, 152, 155, 138, 83, 133, 129, 226, 469, 1041, 1584, 1204, 706, 851, 10625, 13219, 11536, 6791, 13066, 11158, 11190, 10301, 11051]}, "canais": [[["Organic Social"], 70505], [["Unassigned"], 31530], [["Referral"], 4711], [["Direct"], 3477], [["Organic Search"], 659], [["Organic Video"], 85], [["AI Assistant"], 5], [["Paid Search"], 5], [["Paid Social"], 3], [["Paid Other"], 1]], "paginas": [[["/"], 72800], [["/Q9NDB62101"], 10972], [["/consultoria/"], 9468], [["/metodotravessia/"], 4734], [["/aula-mestra-gratuita/"], 4588], [["/caixa-livre-2/"], 1568], [["/aula-transmissao/"], 1408], [["/travessia/"], 698], [["/2017014"], 638], [["/14331/offer/KYti4b/"], 455]], "fontes": [[["(not set)", "(not set)"], 12560], [["bio_ig", "social"], 6301], [["(direct)", "(none)"], 3475], [["fb_Facebook_Right_Column", "[AUTO][Lista+compradores][Advantage]"], 3279], [["ig_Instagram_Stories", "[AUTO][Lista compradores][Advantage]"], 3099], [["linktr.ee", "referral"], 2947], [["ig_Instagram_Feed", "[AUTO][Lista compradores][Advantage]"], 2211], [["ig_Instagram_Stories", "[AUTO][Aberto][Advantage][VDS Planilhas]"], 1694], [["ig_Instagram_Reels", "[AUTO][Lista compradores][Advantage]"], 1302], [["ig_Instagram_Stories", "[AUTO][Compradores][Advantage][IOS 14+]"], 1143]], "devices": [[["mobile"], 98794], [["desktop"], 11982], [["tablet"], 245]], "bio": {"visits": 241, "total": 212, "rows": [[["Site principal (home)"], 86], [["CXL Voomp"], 60], [["Jantar Financeiro"], 45], [["Consultoria"], 20], [["cxlvoomp.leticiakratka.com.br/consultoria"], 1]]}, "consult": {"users": 8234, "leads": 597, "rate": 7.3}, "produtos": [{"name": "Jantar Financeiro", "users": 1482, "sessions": 1905, "checkout": 0, "pages": [[["jantarfinanceiro.leticiakratka.com.br"], 1482]]}, {"name": "Caixa Livre", "users": 17174, "sessions": 21588, "checkout": 51, "pages": [[["planofinanceiro.leticiakratka.com.br"], 8790], [["planovoomp.leticiakratka.com.br"], 4100], [["cxl.leticiakratka.com.br"], 3632], [["cxl01.leticiakratka.com.br"], 532], [["cxlvoomp.leticiakratka.com.br"], 120]]}]}}, "agora": "28/06/2026 14:54"};
 const fmt = n => n.toLocaleString('pt-BR');
+let charts = {};
+
+/* seletor de periodo */
+const sel = document.getElementById('period');
+ALL.order.forEach((k,i)=>{ const o=document.createElement('option'); o.value=k; o.textContent='Ultimos '+k; if(k==='Todo o periodo')o.textContent=k; if(k.includes(' a '))o.textContent=k; sel.appendChild(o); });
+sel.value = ALL.order[0];
+sel.addEventListener('change', ()=>render(sel.value));
 
 /* abas */
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
@@ -122,12 +134,10 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.getElementById(t.dataset.pane).classList.add('active');
 }));
 
-/* helpers */
 function barRows(id, rows, total){
   const max = total || rows.reduce((s,r)=>s+r[1],0) || 1;
   document.getElementById(id).innerHTML = rows.map(r=>{
-    const name = Array.isArray(r[0])?r[0][0]:r[0];
-    const p = r[1]/max*100;
+    const name = Array.isArray(r[0])?r[0][0]:r[0]; const p=r[1]/max*100;
     return `<div class="mrow"><div class="top"><span class="nm">${name}</span>`+
       `<span class="vl">${fmt(r[1])} &middot; <b>${p.toFixed(1)}%</b></span></div>`+
       `<div class="barwrap"><div class="bar" style="width:${p.toFixed(1)}%"></div></div></div>`;
@@ -136,43 +146,69 @@ function barRows(id, rows, total){
 function tbl(id,rows,join){document.getElementById(id).innerHTML=rows.map(r=>
   `<tr><td class="k">${(Array.isArray(r[0])?r[0].join(join||' / '):r[0])}</td><td class="v">${fmt(r[1])}</td></tr>`).join('')}
 
-/* KPIs */
-const kpiBox = document.getElementById('kpis');
-D.kpis.forEach(k=>{
-  let d='', cls='na', arrow='';
-  if(k.d===null){d='sem base'} else {cls=k.d>=0?'up':'dn';arrow=k.d>=0?'\u25B2':'\u25BC';d=arrow+' '+Math.abs(k.d)+'%'}
-  kpiBox.insertAdjacentHTML('beforeend',
-    `<div class="card kpi ${k.hot?'hot':''}"><div class="lab">${k.label}</div>`+
-    `<div class="val">${fmt(k.v)}${k.suf||''}</div><div class="delta ${cls}">${d}</div></div>`);
-});
-new Chart(document.getElementById('lc'),{type:'line',data:{labels:D.daily.labels,datasets:[
-  {label:'Usuarios',data:D.daily.users,borderColor:'#c8a96a',backgroundColor:'rgba(200,169,106,.12)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
-  {label:'Sessoes',data:D.daily.sess,borderColor:'#6aa9c8',fill:false,tension:.35,pointRadius:0,borderWidth:2}]},
-  options:{plugins:{legend:{labels:{color:'#9aa0aa'}}},scales:{x:{ticks:{color:'#9aa0aa',maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'#9aa0aa'},grid:{color:'#272b34'}}}}});
 const cc=['#c8a96a','#6aa9c8','#9c7ed6','#7ed68f','#d67e9c','#d6b67e','#7ed6d0','#b0b0b0'];
-new Chart(document.getElementById('dc'),{type:'doughnut',data:{labels:D.canais.map(r=>r[0][0]),
-  datasets:[{data:D.canais.map(r=>r[1]),backgroundColor:cc,borderColor:'#1a1d24',borderWidth:2}]},
-  options:{plugins:{legend:{position:'bottom',labels:{color:'#9aa0aa',boxWidth:12,font:{size:11}}}}}});
-tbl('tp',D.paginas);tbl('tf',D.fontes,' / ');tbl('td',D.devices);tbl('tc',D.canais);
 
-/* BIO */
-const bioCtr = D.bio.visits ? (D.bio.total/D.bio.visits*100) : 0;
-document.getElementById('bio-stats').innerHTML =
-  `<div><div class="n">${fmt(D.bio.visits)}</div><div class="l">Visitas na bio</div></div>`+
-  `<div><div class="n">${fmt(D.bio.total)}</div><div class="l">Cliques nos links</div></div>`+
-  `<div><div class="n ac">${bioCtr.toFixed(1)}%</div><div class="l">Taxa de clique</div></div>`;
-barRows('bio-bars', D.bio.rows, D.bio.total);
-new Chart(document.getElementById('bio-chart'),{type:'doughnut',data:{labels:D.bio.rows.map(r=>r[0][0]),
-  datasets:[{data:D.bio.rows.map(r=>r[1]),backgroundColor:cc,borderColor:'#1a1d24',borderWidth:2}]},
-  options:{plugins:{legend:{position:'bottom',labels:{color:'#9aa0aa',boxWidth:12,font:{size:11}}}}}});
+function render(key){
+  const D = ALL.periods[key];
+  document.getElementById('subhdr').innerHTML = (key.includes(' a ')||key==='Todo o periodo'?key:'Ultimos '+key)+' &middot; atualizado em '+ALL.agora;
 
-/* CONVERSAO */
-document.getElementById('conv-stats').innerHTML =
-  `<div><div class="n ac">${D.consult.rate}%</div><div class="l">Taxa de conversao</div></div>`+
-  `<div><div class="n">${fmt(D.consult.leads)}</div><div class="l">Leads (formularios)</div></div>`+
-  `<div><div class="n">${fmt(D.consult.users)}</div><div class="l">Visitantes</div></div>`;
-document.getElementById('conv-funnel').innerHTML =
-  `<div class="fstep"><span class="fn">Visitantes da pagina</span><span class="fv">${fmt(D.consult.users)}</span></div>`+
-  `<div class="farrow">&#8595; ${D.consult.rate}% preenchem o formulario</div>`+
-  `<div class="fstep gold"><span class="fn">Leads gerados</span><span class="fv">${fmt(D.consult.leads)}</span></div>`;
+  /* KPIs */
+  document.getElementById('kpis').innerHTML = D.kpis.map(k=>{
+    let d='', cls='na', arrow='';
+    if(k.d===null){d='sem comparativo'} else {cls=k.d>=0?'up':'dn';arrow=k.d>=0?'\u25B2':'\u25BC';d=arrow+' '+Math.abs(k.d)+'%'}
+    return `<div class="card kpi ${k.hot?'hot':''}"><div class="lab">${k.label}</div>`+
+      `<div class="val">${fmt(k.v)}${k.suf||''}</div><div class="delta ${cls}">${d}</div></div>`;
+  }).join('');
+
+  /* charts (destroi antes de recriar) */
+  Object.values(charts).forEach(c=>c&&c.destroy());
+  charts.lc = new Chart(document.getElementById('lc'),{type:'line',data:{labels:D.daily.labels,datasets:[
+    {label:'Usuarios',data:D.daily.users,borderColor:'#c8a96a',backgroundColor:'rgba(200,169,106,.12)',fill:true,tension:.35,pointRadius:0,borderWidth:2},
+    {label:'Sessoes',data:D.daily.sess,borderColor:'#6aa9c8',fill:false,tension:.35,pointRadius:0,borderWidth:2}]},
+    options:{plugins:{legend:{labels:{color:'#9aa0aa'}}},scales:{x:{ticks:{color:'#9aa0aa',maxTicksLimit:12},grid:{display:false}},y:{ticks:{color:'#9aa0aa'},grid:{color:'#272b34'}}}}});
+  charts.dc = new Chart(document.getElementById('dc'),{type:'doughnut',data:{labels:D.canais.map(r=>r[0][0]),
+    datasets:[{data:D.canais.map(r=>r[1]),backgroundColor:cc,borderColor:'#1a1d24',borderWidth:2}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:'#9aa0aa',boxWidth:12,font:{size:11}}}}}});
+
+  tbl('tp',D.paginas);tbl('tf',D.fontes,' / ');tbl('td',D.devices);tbl('tc',D.canais);
+
+  /* BIO */
+  const bioCtr = D.bio.visits ? (D.bio.total/D.bio.visits*100) : 0;
+  document.getElementById('bio-stats').innerHTML =
+    `<div><div class="n">${fmt(D.bio.visits)}</div><div class="l">Visitas na bio</div></div>`+
+    `<div><div class="n">${fmt(D.bio.total)}</div><div class="l">Cliques nos links</div></div>`+
+    `<div><div class="n ac">${bioCtr.toFixed(1)}%</div><div class="l">Taxa de clique</div></div>`;
+  barRows('bio-bars', D.bio.rows, D.bio.total);
+  charts.bio = new Chart(document.getElementById('bio-chart'),{type:'doughnut',data:{labels:D.bio.rows.map(r=>r[0][0]),
+    datasets:[{data:D.bio.rows.map(r=>r[1]),backgroundColor:cc,borderColor:'#1a1d24',borderWidth:2}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:'#9aa0aa',boxWidth:12,font:{size:11}}}}}});
+
+  /* PRODUTOS */
+  document.getElementById('prod-cards').innerHTML = D.produtos.map((p,i)=>{
+    const pagesHtml = p.pages.map(pg=>{
+      const pp = p.users ? (pg[1]/p.users*100) : 0;
+      return `<div class="mrow"><div class="top"><span class="nm">${pg[0][0]}</span>`+
+        `<span class="vl">${fmt(pg[1])} &middot; <b>${pp.toFixed(1)}%</b></span></div>`+
+        `<div class="barwrap"><div class="bar" style="width:${pp.toFixed(1)}%"></div></div></div>`;
+    }).join('');
+    const co = p.checkout ? `<div><div class="n ac">${fmt(p.checkout)}</div><div class="l">Begin checkout</div></div>` : '';
+    return `<div class="grid full"><div class="card" style="border-color:var(--ac)">`+
+      `<h2 style="color:var(--ac)">${p.name}</h2>`+
+      `<div class="bigstat"><div><div class="n">${fmt(p.users)}</div><div class="l">Visitantes</div></div>`+
+      `<div><div class="n">${fmt(p.sessions)}</div><div class="l">Sessoes</div></div>${co}</div>`+
+      (p.pages.length>1?`<div style="margin-top:16px"><div class="sub" style="margin-bottom:6px">Por pagina</div>${pagesHtml}</div>`:'')+
+      `</div></div>`;
+  }).join('');
+
+  /* CONVERSAO */
+  document.getElementById('conv-stats').innerHTML =
+    `<div><div class="n ac">${D.consult.rate}%</div><div class="l">Taxa de conversao</div></div>`+
+    `<div><div class="n">${fmt(D.consult.leads)}</div><div class="l">Leads (formularios)</div></div>`+
+    `<div><div class="n">${fmt(D.consult.users)}</div><div class="l">Visitantes</div></div>`;
+  document.getElementById('conv-funnel').innerHTML =
+    `<div class="fstep"><span class="fn">Visitantes da pagina</span><span class="fv">${fmt(D.consult.users)}</span></div>`+
+    `<div class="farrow">&#8595; ${D.consult.rate}% preenchem o formulario</div>`+
+    `<div class="fstep gold"><span class="fn">Leads gerados</span><span class="fv">${fmt(D.consult.leads)}</span></div>`;
+}
+render(sel.value);
 </script></body></html>
