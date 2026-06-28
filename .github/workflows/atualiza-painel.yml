@@ -20,8 +20,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Instala dependencia
-        run: pip install --quiet google-auth
+      - name: Instala dependencias
+        run: pip install --quiet google-auth requests
 
       - name: Gera o painel
         env:
