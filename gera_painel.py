@@ -23,7 +23,7 @@ else:
 creds.refresh(google.auth.transport.requests.Request())
 TOKEN = creds.token
 
-def run(body):
+def run(body, quiet=False):
     url = f"https://analyticsdata.googleapis.com/v1beta/properties/{PID}:runReport"
     req = urllib.request.Request(url, data=json.dumps(body).encode(),
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"})
@@ -31,7 +31,9 @@ def run(body):
         with urllib.request.urlopen(req) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
-        print("ERRO", e.code, e.read().decode()[:300]); return {"rows": []}
+        if not quiet:
+            print("ERRO", e.code, e.read().decode()[:300])
+        return {"rows": []}
 
 # ---------- consultas escopadas por intervalo (dr) ----------
 def totals(dr):
@@ -93,6 +95,19 @@ def bio_for(dr):
         "dimensionFilter": {"filter": {"fieldName": "hostName",
             "stringFilter": {"matchType": "CONTAINS", "value": "bio.leticiakratka"}}}})
     visits = int(bv["rows"][0]["metricValues"][0]["value"]) if bv.get("rows") else 0
+
+    # 1) tenta a medicao EXATA pelo evento bio_click (precisa da custom dimension link_name registrada no GA4)
+    ex = run({"dateRanges": dr, "dimensions": [{"name": "customEvent:link_name"}],
+        "metrics": [{"name": "eventCount"}],
+        "dimensionFilter": {"filter": {"fieldName": "eventName", "stringFilter": {"value": "bio_click"}}},
+        "orderBys": [{"metric": {"metricName": "eventCount"}, "desc": True}]}, quiet=True)
+    rows_ex = [([r["dimensionValues"][0]["value"]], int(r["metricValues"][0]["value"]))
+               for r in ex.get("rows", [])
+               if r["dimensionValues"][0]["value"] not in ("(not set)", "(not provided)")]
+    if rows_ex:
+        return {"visits": visits, "total": sum(v for _, v in rows_ex), "rows": rows_ex, "exato": True}
+
+    # 2) fallback: metodo inferido pelo destino
     raw = run({"dateRanges": dr,
         "dimensions": [{"name": "hostName"}, {"name": "landingPage"}],
         "metrics": [{"name": "sessions"}],
@@ -108,7 +123,7 @@ def bio_for(dr):
         agg[key] = agg.get(key, 0) + int(rw["metricValues"][0]["value"])
     links = sorted(agg.items(), key=lambda x: -x[1])
     rows = [([NOMES_BIO.get(k, k)], v) for k, v in links]
-    return {"visits": visits, "total": sum(v for _, v in links), "rows": rows}
+    return {"visits": visits, "total": sum(v for _, v in links), "rows": rows, "exato": False}
 
 def consult_for(dr):
     d = run({"dateRanges": dr, "dimensions": [{"name": "pagePath"}],
@@ -124,7 +139,15 @@ def consult_for(dr):
     ctr = ct.get("rows", [])
     users = int(ctr[0]["metricValues"][1]["value"]) if ctr else 0
     rate = round(leads / users * 100, 1) if users else 0
-    return {"users": users, "leads": leads, "rate": rate}
+    # quebra por faixa de renda (lead_consultoria) - precisa custom dimension renda registrada
+    rb = run({"dateRanges": dr, "dimensions": [{"name": "customEvent:renda"}],
+        "metrics": [{"name": "eventCount"}],
+        "dimensionFilter": {"filter": {"fieldName": "eventName", "stringFilter": {"value": "lead_consultoria"}}},
+        "orderBys": [{"metric": {"metricName": "eventCount"}, "desc": True}]}, quiet=True)
+    renda = [([r["dimensionValues"][0]["value"]], int(r["metricValues"][0]["value"]))
+             for r in rb.get("rows", [])
+             if r["dimensionValues"][0]["value"] not in ("(not set)", "(not provided)")]
+    return {"users": users, "leads": leads, "rate": rate, "renda": renda}
 
 PRODUTOS = [
     ("Jantar Financeiro", ["jantarfinanceiro.leticiakratka.com.br"]),
@@ -331,7 +354,7 @@ canvas{max-height:300px}
     <div class="card"><h2>Cliques por link (% do total)</h2><div id="bio-bars"></div></div>
     <div class="card"><h2>Distribuicao</h2><canvas id="bio-chart"></canvas></div>
   </div>
-  <div class="sub" style="line-height:1.5;margin-top:14px">Cliques <b>inferidos pelo destino</b> (sessoes que sairam da bio pra cada pagina). A medicao exata por botao (evento bio_click) ja foi instalada e aparece aqui quando acumular dados.</div>
+  <div class="sub" id="bio-note" style="line-height:1.5;margin-top:14px"></div>
 </div>
 
 <div class="tabpane" id="p-prod">
@@ -359,7 +382,10 @@ canvas{max-height:300px}
   <div class="grid full">
     <div class="card"><h2>Funil da pagina</h2><div class="funnel" id="conv-funnel"></div></div>
   </div>
-  <div class="sub" style="line-height:1.5;margin-top:14px">Taxa de conversao = formularios enviados (generate_lead) sobre visitantes unicos de /consultoria/. A quebra por <b>faixa de renda</b> (lead_consultoria) entra aqui quando comecar a registrar.</div>
+  <div class="grid full" id="renda-card" style="display:none">
+    <div class="card"><h2>Leads por faixa de renda (% do total)</h2><div id="renda-bars"></div></div>
+  </div>
+  <div class="sub" style="line-height:1.5;margin-top:14px">Taxa de conversao = formularios enviados (generate_lead) sobre visitantes unicos de /consultoria/. A quebra por <b>faixa de renda</b> (lead_consultoria) aparece sozinha aqui quando comecar a registrar.</div>
 </div>
 
 <div class="foot">GA4 propriedade __PID__ &middot; atualiza sozinho 1x/dia &middot; gerado em __AGORA__</div>
@@ -427,6 +453,9 @@ function render(key){
     `<div><div class="n">${fmt(D.bio.total)}</div><div class="l">Cliques nos links</div></div>`+
     `<div><div class="n ac">${bioCtr.toFixed(1)}%</div><div class="l">Taxa de clique</div></div>`;
   barRows('bio-bars', D.bio.rows, D.bio.total);
+  document.getElementById('bio-note').innerHTML = D.bio.exato
+    ? '&#9989; <b>Medicao exata</b> por botao (evento bio_click). Cada clique e contado de verdade na pagina da bio.'
+    : 'Cliques <b>inferidos pelo destino</b> (sessoes que sairam da bio pra cada pagina) &mdash; numero aproximado. A medicao exata por botao (bio_click) ja foi instalada e troca pra ca sozinha quando acumular dados.';
   charts.bio = new Chart(document.getElementById('bio-chart'),{type:'doughnut',data:{labels:D.bio.rows.map(r=>r[0][0]),
     datasets:[{data:D.bio.rows.map(r=>r[1]),backgroundColor:cc,borderColor:'#1a1d24',borderWidth:2}]},
     options:{plugins:{legend:{position:'bottom',labels:{color:'#9aa0aa',boxWidth:12,font:{size:11}}}}}});
@@ -472,6 +501,11 @@ function render(key){
     `<div class="fstep"><span class="fn">Visitantes da pagina</span><span class="fv">${fmt(D.consult.users)}</span></div>`+
     `<div class="farrow">&#8595; ${D.consult.rate}% preenchem o formulario</div>`+
     `<div class="fstep gold"><span class="fn">Leads gerados</span><span class="fv">${fmt(D.consult.leads)}</span></div>`;
+  const rc = document.getElementById('renda-card');
+  if (D.consult.renda && D.consult.renda.length){
+    rc.style.display='';
+    barRows('renda-bars', D.consult.renda);
+  } else { rc.style.display='none'; }
 }
 render(sel.value);
 </script></body></html>"""
