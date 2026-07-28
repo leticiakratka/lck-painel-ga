@@ -89,7 +89,30 @@ NOMES_BIO = {
     "jantarfinanceiro.leticiakratka.com.br/": "Jantar Financeiro",
 }
 
-def bio_for(dr):
+def _bio_totals(dr):
+    """Visitas na bio + total de cliques (sem quebra por link) - usado pro periodo comparativo."""
+    bv = run({"dateRanges": dr, "dimensions": [{"name": "hostName"}],
+        "metrics": [{"name": "screenPageViews"}],
+        "dimensionFilter": {"filter": {"fieldName": "hostName",
+            "stringFilter": {"matchType": "CONTAINS", "value": "bio.leticiakratka"}}}})
+    visits = int(bv["rows"][0]["metricValues"][0]["value"]) if bv.get("rows") else 0
+
+    ex = run({"dateRanges": dr, "metrics": [{"name": "eventCount"}],
+        "dimensionFilter": {"filter": {"fieldName": "eventName", "stringFilter": {"value": "bio_click"}}}}, quiet=True)
+    if ex.get("rows"):
+        total = int(ex["rows"][0]["metricValues"][0]["value"])
+        return visits, total
+
+    raw = run({"dateRanges": dr,
+        "dimensions": [{"name": "hostName"}],
+        "metrics": [{"name": "sessions"}],
+        "dimensionFilter": {"filter": {"fieldName": "pageReferrer",
+            "stringFilter": {"matchType": "CONTAINS", "value": "bio.leticiakratka"}}}})
+    total = sum(int(rw["metricValues"][0]["value"]) for rw in raw.get("rows", [])
+                if rw["dimensionValues"][0]["value"] != "bio.leticiakratka.com.br")
+    return visits, total
+
+def bio_for(dr, dr_prev=None):
     bv = run({"dateRanges": dr, "dimensions": [{"name": "hostName"}],
         "metrics": [{"name": "screenPageViews"}],
         "dimensionFilter": {"filter": {"fieldName": "hostName",
@@ -105,25 +128,34 @@ def bio_for(dr):
                for r in ex.get("rows", [])
                if r["dimensionValues"][0]["value"] not in ("(not set)", "(not provided)")]
     if rows_ex:
-        return {"visits": visits, "total": sum(v for _, v in rows_ex), "rows": rows_ex, "exato": True}
+        result = {"visits": visits, "total": sum(v for _, v in rows_ex), "rows": rows_ex, "exato": True}
+    else:
+        # 2) fallback: metodo inferido pelo destino
+        raw = run({"dateRanges": dr,
+            "dimensions": [{"name": "hostName"}, {"name": "landingPage"}],
+            "metrics": [{"name": "sessions"}],
+            "dimensionFilter": {"filter": {"fieldName": "pageReferrer",
+                "stringFilter": {"matchType": "CONTAINS", "value": "bio.leticiakratka"}}},
+            "orderBys": [{"metric": {"metricName": "sessions"}, "desc": True}]})
+        agg = {}
+        for rw in raw.get("rows", []):
+            h = rw["dimensionValues"][0]["value"]; p = rw["dimensionValues"][1]["value"]
+            if h == "bio.leticiakratka.com.br":
+                continue
+            key = h + "/" if p in ("(not set)", "", "/") else h + p
+            agg[key] = agg.get(key, 0) + int(rw["metricValues"][0]["value"])
+        links = sorted(agg.items(), key=lambda x: -x[1])
+        rows = [([NOMES_BIO.get(k, k)], v) for k, v in links]
+        result = {"visits": visits, "total": sum(v for _, v in links), "rows": rows, "exato": False}
 
-    # 2) fallback: metodo inferido pelo destino
-    raw = run({"dateRanges": dr,
-        "dimensions": [{"name": "hostName"}, {"name": "landingPage"}],
-        "metrics": [{"name": "sessions"}],
-        "dimensionFilter": {"filter": {"fieldName": "pageReferrer",
-            "stringFilter": {"matchType": "CONTAINS", "value": "bio.leticiakratka"}}},
-        "orderBys": [{"metric": {"metricName": "sessions"}, "desc": True}]})
-    agg = {}
-    for rw in raw.get("rows", []):
-        h = rw["dimensionValues"][0]["value"]; p = rw["dimensionValues"][1]["value"]
-        if h == "bio.leticiakratka.com.br":
-            continue
-        key = h + "/" if p in ("(not set)", "", "/") else h + p
-        agg[key] = agg.get(key, 0) + int(rw["metricValues"][0]["value"])
-    links = sorted(agg.items(), key=lambda x: -x[1])
-    rows = [([NOMES_BIO.get(k, k)], v) for k, v in links]
-    return {"visits": visits, "total": sum(v for _, v in links), "rows": rows, "exato": False}
+    if dr_prev:
+        v_prev, t_prev = _bio_totals(dr_prev)
+        ctr_cur = round(result["total"] / visits * 100, 1) if visits else 0
+        ctr_prev = round(t_prev / v_prev * 100, 1) if v_prev else 0
+        result["d_visits"] = pct(visits, v_prev)
+        result["d_total"] = pct(result["total"], t_prev)
+        result["d_ctr"] = pct(ctr_cur, ctr_prev)
+    return result
 
 def consult_for(dr):
     d = run({"dateRanges": dr, "dimensions": [{"name": "pagePath"}],
@@ -227,7 +259,7 @@ def build_period(cur, prev, gran):
         "paginas": table_for(cur, ["pagePath"], "screenPageViews"),
         "fontes": table_for(cur, ["sessionSource", "sessionMedium"], "sessions"),
         "devices": table_for(cur, ["deviceCategory"], "sessions"),
-        "bio": bio_for(cur),
+        "bio": bio_for(cur, prev),
         "consult": consult_for(cur),
         "produtos": produtos_for(cur),
         "vendas": vendas_for(cur),
@@ -237,6 +269,7 @@ def build_period(cur, prev, gran):
 def dr(s, e): return [{"startDate": s, "endDate": e}]
 
 CFG = [
+    ("7 dias", dr("7daysAgo", "today"), dr("14daysAgo", "8daysAgo"), "date"),
     ("30 dias", dr("30daysAgo", "today"), dr("60daysAgo", "31daysAgo"), "date"),
     ("60 dias", dr("60daysAgo", "today"), dr("120daysAgo", "61daysAgo"), "date"),
     ("90 dias", dr("90daysAgo", "today"), dr("180daysAgo", "91daysAgo"), "week"),
@@ -448,10 +481,15 @@ function render(key){
 
   /* BIO */
   const bioCtr = D.bio.visits ? (D.bio.total/D.bio.visits*100) : 0;
+  const bioDelta = d => {
+    if (d===undefined || d===null) return '';
+    const cls = d>=0?'up':'dn', arrow = d>=0?'\\u25B2':'\\u25BC';
+    return `<div class="delta ${cls}">${arrow} ${Math.abs(d)}% vs periodo anterior</div>`;
+  };
   document.getElementById('bio-stats').innerHTML =
-    `<div><div class="n">${fmt(D.bio.visits)}</div><div class="l">Visitas na bio</div></div>`+
-    `<div><div class="n">${fmt(D.bio.total)}</div><div class="l">Cliques nos links</div></div>`+
-    `<div><div class="n ac">${bioCtr.toFixed(1)}%</div><div class="l">Taxa de clique</div></div>`;
+    `<div><div class="n">${fmt(D.bio.visits)}</div><div class="l">Visitas na bio</div>${bioDelta(D.bio.d_visits)}</div>`+
+    `<div><div class="n">${fmt(D.bio.total)}</div><div class="l">Cliques nos links</div>${bioDelta(D.bio.d_total)}</div>`+
+    `<div><div class="n ac">${bioCtr.toFixed(1)}%</div><div class="l">Taxa de clique</div>${bioDelta(D.bio.d_ctr)}</div>`;
   barRows('bio-bars', D.bio.rows, D.bio.total);
   document.getElementById('bio-note').innerHTML = D.bio.exato
     ? '&#9989; <b>Medicao exata</b> por botao (evento bio_click). Cada clique e contado de verdade na pagina da bio.'
